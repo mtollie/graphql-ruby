@@ -208,7 +208,16 @@ module GraphQL
         def evaluate_selections(owner_object, owner_type, is_eager_selection, gathered_selections, selections_result, target_result, parent_object, runtime_state) # rubocop:disable Metrics/ParameterLists
           finished_jobs = 0
           enqueued_jobs = gathered_selections.size
-          gathered_selections.each do |result_name, field_ast_nodes_or_ast_node|
+
+          x = gathered_selections.dup
+          x.delete("nodes")
+          z = x.to_a
+
+          if gathered_selections.include?("nodes")
+            z.insert(0, ["nodes", gathered_selections["nodes"]])
+          end
+
+          z.each do |result_name, field_ast_nodes_or_ast_node|
             @dataloader.append_job {
               runtime_state = get_current_runtime_state
               evaluate_selection(
